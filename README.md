@@ -12,13 +12,13 @@ npm install @blitzdev/ios-mcp
 
 ## Quick Start
 
-### System-wide (use in any project)
+### Global (use in any project)
 
 ```bash
 npx @blitzdev/ios-mcp --setup-all
 ```
 
-This installs dependencies and configures `@blitzdev/ios-mcp` for all your AI agents globally. It automatically sets up Claude Code, and if you have Cursor or Codex installed, those get configured too.
+This installs dependencies and configures `@blitzdev/ios-mcp` for all your AI agents. It automatically sets up Claude Code, and if you have Cursor or Codex installed, those get configured too.
 
 NOTE: For Cursor, you need to enable the blitz-ios MCP server in Cursor Settings
 
