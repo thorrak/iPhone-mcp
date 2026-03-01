@@ -9,7 +9,7 @@ import { childEnv } from '../child-env.js'
 const execAsync = promisify(exec)
 
 function resolveIdbPath(): string {
-  const mcpIdb = join(homedir(), '.blitz-ios-mcp', 'python', 'bin', 'idb')
+  const mcpIdb = join(homedir(), '.blitz-iphone-mcp', 'python', 'bin', 'idb')
   if (existsSync(mcpIdb)) return mcpIdb
   const blitzIdb = join(homedir(), '.blitz', 'python', 'bin', 'idb')
   if (existsSync(blitzIdb)) return blitzIdb
@@ -17,7 +17,7 @@ function resolveIdbPath(): string {
 }
 
 function resolveCompanionPath(): string | null {
-  const mcpCompanion = join(homedir(), '.blitz-ios-mcp', 'idb-companion', 'bin', 'idb_companion')
+  const mcpCompanion = join(homedir(), '.blitz-iphone-mcp', 'idb-companion', 'bin', 'idb_companion')
   if (existsSync(mcpCompanion)) return mcpCompanion
   const blitzCompanion = join(homedir(), '.blitz', 'idb-companion', 'bin', 'idb_companion')
   if (existsSync(blitzCompanion)) return blitzCompanion

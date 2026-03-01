@@ -63,7 +63,7 @@ const singleActionSchema = z.object({
 
 export function createMcpServer(viewerPort: number) {
   const server = new McpServer({
-    name: '@blitzdev/ios-mcp',
+    name: '@blitzdev/iphone-mcp',
     version: '0.1.0',
   })
 
@@ -121,7 +121,7 @@ For finding tappable elements specifically, prefer scan_ui instead.`,
   server.registerTool(
     'device_action',
     {
-      description: `Execute a single device action on the iOS device.
+      description: `Execute a single device action on the iPhone.
 
 Actions available:
 - tap: Tap at coordinates { x, y, duration? }
@@ -212,7 +212,7 @@ Use describe_after to see the screen state after the action.`,
   server.registerTool(
     'device_actions',
     {
-      description: `Execute multiple device actions in sequence on the iOS device.
+      description: `Execute multiple device actions in sequence on the iPhone.
 
 Each action in the array should have:
 - action: 'tap' | 'swipe' | 'button' | 'input-text' | 'key' | 'key-sequence'
@@ -300,7 +300,7 @@ Use describe_after to see the screen state after all actions complete.`,
   server.registerTool(
     'get_screenshot',
     {
-      description: 'Capture a screenshot of the current iOS device screen. Returns the file path to a PNG image.',
+      description: 'Capture a screenshot of the current iPhone screen. Returns the file path to a PNG image.',
       inputSchema: {
         udid: z.string().optional().describe('Device identifier (default: "booted")'),
       },
@@ -429,7 +429,7 @@ For the complete element tree (all types), use describe_screen instead.`,
   server.registerTool(
     'list_devices',
     {
-      description: 'List all available iOS devices (simulators and physical devices).',
+      description: 'List all available iPhones and simulators.',
       inputSchema: {},
     },
     async () => {
@@ -472,7 +472,7 @@ For the complete element tree (all types), use describe_screen instead.`,
   server.registerTool(
     'get_execution_context',
     {
-      description: `Get the current execution context — which iOS device(s) are available.
+      description: `Get the current execution context — which iPhone(s) or simulators are available.
 
 Call this first to discover available devices. Returns:
 - target: 'simulator' — one simulator booted, use the returned udid
@@ -637,7 +637,7 @@ After setup completes, use the returned udid for all subsequent tool calls. Also
   server.registerTool(
     'launch_app',
     {
-      description: 'Launch an app on the iOS device by bundle ID.',
+      description: 'Launch an app on the iPhone by bundle ID.',
       inputSchema: {
         bundleId: z.string().describe('The bundle identifier of the app to launch (e.g. "com.apple.mobilesafari")'),
         udid: z.string().optional().describe('Device identifier (default: "booted")'),
@@ -670,7 +670,7 @@ After setup completes, use the returned udid for all subsequent tool calls. Also
   server.registerTool(
     'list_apps',
     {
-      description: 'List installed apps on the iOS device.',
+      description: 'List installed apps on the iPhone.',
       inputSchema: {
         udid: z.string().optional().describe('Device identifier (default: "booted")'),
       },

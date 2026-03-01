@@ -1,5 +1,5 @@
 {
-  "name": "@blitzdev/ios-mcp",
+  "name": "@blitzdev/iphone-mcp",
   "version": "0.1.6",
   "description": "MCP server for controlling iOS simulators and physical iPhones",
   "type": "module",
@@ -9,7 +9,7 @@
     "url": "https://github.com/blitzdotdev/ios-mcp.git"
   },
   "bin": {
-    "blitz-ios-mcp": "dist/cli.js"
+    "iphone-mcp": "dist/cli.js"
   },
   "files": [
     "dist",

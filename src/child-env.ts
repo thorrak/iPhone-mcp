@@ -41,9 +41,9 @@ export function childEnv(): Record<string, string> {
     '/opt/homebrew/sbin',
     '/usr/local/bin',
     '/usr/local/sbin',
-    // blitz-ios-mcp paths (primary)
-    path.join(home, '.blitz-ios-mcp/python/bin'),
-    path.join(home, '.blitz-ios-mcp/idb-companion/bin'),
+    // blitz-iphone-mcp paths (primary)
+    path.join(home, '.blitz-iphone-mcp/python/bin'),
+    path.join(home, '.blitz-iphone-mcp/idb-companion/bin'),
     // blitz paths (fallback)
     path.join(home, '.blitz/python/bin'),
     path.join(home, '.blitz/idb-companion/bin'),

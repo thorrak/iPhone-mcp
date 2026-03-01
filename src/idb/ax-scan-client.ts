@@ -9,7 +9,7 @@ import type { ScanRegion, ScanCommand } from '../types.js'
 const execAsync = promisify(exec)
 
 function resolveAxScanPath(): string | null {
-  const mcpPath = path.join(os.homedir(), '.blitz-ios-mcp', 'bin', 'ax-scan')
+  const mcpPath = path.join(os.homedir(), '.blitz-iphone-mcp', 'bin', 'ax-scan')
   if (existsSync(mcpPath)) return mcpPath
   const blitzPath = path.join(os.homedir(), '.blitz', 'bin', 'ax-scan')
   if (existsSync(blitzPath)) return blitzPath

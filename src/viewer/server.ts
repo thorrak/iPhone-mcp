@@ -10,7 +10,7 @@ const VIEWER_HTML = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>blitz-ios-mcp viewer</title>
+<title>blitz-iphone-mcp viewer</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: system-ui; }

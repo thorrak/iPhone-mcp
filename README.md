@@ -5,17 +5,17 @@
 
   [![Website](https://img.shields.io/badge/blitz.dev-website-black)](https://blitz.dev/)
   [![Discord](https://img.shields.io/badge/discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/wJQ6dA95S6)
-  [![npm](https://img.shields.io/npm/v/@blitzdev/ios-mcp?label=npm&color=blue)](https://www.npmjs.com/package/@blitzdev/ios-mcp)
+  [![npm](https://img.shields.io/npm/v/@blitzdev/iphone-mcp?label=npm&color=blue)](https://www.npmjs.com/package/@blitzdev/iphone-mcp)
 </div>
 
-# @blitzdev/ios-mcp
+# @blitzdev/iphone-mcp
 
 <!-- NOTE: Video showing a 30-second demo of Claude Code tapping through an app on a simulator, scanning UI, and taking a screenshot -->
 
 ## Installation
 
 ```bash
-npm install @blitzdev/ios-mcp
+npm install @blitzdev/iphone-mcp
 ```
 
 ## Quick Start
@@ -23,21 +23,21 @@ npm install @blitzdev/ios-mcp
 ### Global (use in any project)
 
 ```bash
-npx @blitzdev/ios-mcp --setup-all
+npx @blitzdev/iphone-mcp --setup-all
 ```
 
-This installs dependencies and configures `@blitzdev/ios-mcp` for all your AI agents. It automatically sets up Claude Code, and if you have Cursor, Codex, or OpenCode installed, those get configured too.
+This installs dependencies and configures `@blitzdev/iphone-mcp` for all your AI agents. It automatically sets up Claude Code, and if you have Cursor, Codex, or OpenCode installed, those get configured too.
 
-NOTE: For Cursor, you need to enable the blitz-ios MCP server in Cursor Settings
+NOTE: For Cursor, you need to enable the blitz-iphone MCP server in Cursor Settings
 
 ### Project-scoped (one project only)
 
 ```bash
 cd your-project
-npx @blitzdev/ios-mcp --setup-here
+npx @blitzdev/iphone-mcp --setup-here
 ```
 
-This prompts you to choose which AI agents to configure (Claude Code, Cursor, Codex, OpenCode) and writes the config files into your project directory. `@blitzdev/ios-mcp` will only be available when you open an agent inside that directory.
+This prompts you to choose which AI agents to configure (Claude Code, Cursor, Codex, OpenCode) and writes the config files into your project directory. `@blitzdev/iphone-mcp` will only be available when you open an agent inside that directory.
 
 ### Then just ask
 
@@ -73,7 +73,7 @@ Open a new AI agent session and ask:
 
 ## Simulators
 
-Boot any iOS simulator, then ask your AI agent to interact with it. No extra setup needed beyond `--setup-all` or `--setup-here`.
+Boot any iPhone simulator, then ask your AI agent to interact with it. No extra setup needed beyond `--setup-all` or `--setup-here`.
 
 ```
 > what apps are installed on the simulator?
@@ -160,9 +160,9 @@ If you'd rather configure things yourself:
 ```json
 {
   "mcpServers": {
-    "blitz-ios": {
+    "blitz-iphone": {
       "command": "npx",
-      "args": ["@blitzdev/ios-mcp"]
+      "args": ["@blitzdev/iphone-mcp"]
     }
   }
 }
@@ -173,9 +173,9 @@ If you'd rather configure things yourself:
 ```json
 {
   "mcpServers": {
-    "blitz-ios": {
+    "blitz-iphone": {
       "command": "npx",
-      "args": ["@blitzdev/ios-mcp"]
+      "args": ["@blitzdev/iphone-mcp"]
     }
   }
 }
@@ -184,9 +184,9 @@ If you'd rather configure things yourself:
 **Codex** — add to `~/.codex/config.toml` (global) or `.codex/config.toml` (project):
 
 ```toml
-[mcp_servers.blitz-ios]
+[mcp_servers.blitz-iphone]
 command = "npx"
-args = ["@blitzdev/ios-mcp"]
+args = ["@blitzdev/iphone-mcp"]
 ```
 
 **OpenCode** — add to `opencode.json` in your project root:
@@ -195,9 +195,9 @@ args = ["@blitzdev/ios-mcp"]
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "blitz-ios": {
+    "blitz-iphone": {
       "type": "local",
-      "command": ["npx", "-y", "@blitzdev/ios-mcp"],
+      "command": ["npx", "-y", "@blitzdev/iphone-mcp"],
       "enabled": true
     }
   }
@@ -212,7 +212,7 @@ args = ["@blitzdev/ios-mcp"]
 
 **WDA build fails** — Open Xcode > Settings > Accounts and make sure an Apple ID is signed in. Xcode needs a signing identity to build WDA.
 
-**"Connection refused" errors** — The idb companion may have crashed. Run `npx @blitzdev/ios-mcp --setup-all` again to re-initialize.
+**"Connection refused" errors** — The idb companion may have crashed. Run `npx @blitzdev/iphone-mcp --setup-all` again to re-initialize.
 
 ## License
 

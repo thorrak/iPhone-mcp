@@ -6,7 +6,7 @@ import { log } from './logger.js'
 const DEFAULT_VIEWER_PORT = 5150
 
 export async function startServer(): Promise<void> {
-  log('Server', 'log', 'Starting blitz-ios-mcp...')
+  log('Server', 'log', 'Starting blitz-iphone-mcp...')
 
   const { start } = createViewerServer()
   const viewerPort = await start(DEFAULT_VIEWER_PORT)

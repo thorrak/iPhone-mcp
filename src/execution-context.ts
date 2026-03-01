@@ -72,7 +72,7 @@ export async function detectExecutionContext(viewerPort: number): Promise<Execut
   if (simulators.length === 0 && physicalDevices.length === 0) {
     return {
       target: 'none',
-      message: 'No iOS devices found. Boot a simulator or connect an iPhone.',
+      message: 'No iPhone or simulator found. Boot a simulator or connect an iPhone.',
     }
   }
 

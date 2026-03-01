@@ -36,20 +36,20 @@ export class WDAManager {
   }
 
   private getWdaProjectPath(): string {
-    const mcpPath = join(homedir(), '.blitz-ios-mcp', 'wda-build', 'WebDriverAgent')
+    const mcpPath = join(homedir(), '.blitz-iphone-mcp', 'wda-build', 'WebDriverAgent')
     if (existsSync(join(mcpPath, 'WebDriverAgent.xcodeproj'))) return mcpPath
 
     const blitzPath = join(homedir(), '.blitz', 'wda-build', 'WebDriverAgent')
     if (existsSync(join(blitzPath, 'WebDriverAgent.xcodeproj'))) return blitzPath
 
-    throw new Error('WebDriverAgent not found. Run `npx @blitzdev/ios-mcp --setup` to install it.')
+    throw new Error('WebDriverAgent not found. Run `npx @blitzdev/iphone-mcp --setup` to install it.')
   }
 
   private async ensureWdaSource(): Promise<string> {
     try {
       return this.getWdaProjectPath()
     } catch {
-      const targetDir = join(homedir(), '.blitz-ios-mcp', 'wda-build')
+      const targetDir = join(homedir(), '.blitz-iphone-mcp', 'wda-build')
       mkdirSync(targetDir, { recursive: true })
       const wdaDir = join(targetDir, 'WebDriverAgent')
 
@@ -64,7 +64,7 @@ export class WDAManager {
   }
 
   private getDerivedDataPath(): string {
-    const dir = join(homedir(), '.blitz-ios-mcp', 'wda-build')
+    const dir = join(homedir(), '.blitz-iphone-mcp', 'wda-build')
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
     return dir
   }
