@@ -2,6 +2,7 @@
 
 MCP server that lets AI agents control iOS simulators and physical iPhones. Works with Claude Code, Cursor, Codex, OpenCode, and any MCP-compatible AI agent.
 
+[![Website](https://img.shields.io/badge/blitz.dev-website-black)](https://blitz.dev/)
 [![Discord](https://img.shields.io/badge/discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/wJQ6dA95S6)
 [![npm](https://img.shields.io/npm/v/@blitzdev/ios-mcp?label=npm&color=blue)](https://www.npmjs.com/package/@blitzdev/ios-mcp)
 
