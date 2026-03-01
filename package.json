@@ -1,0 +1,35 @@
+{
+  "name": "blitz-ios-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for controlling iOS simulators and physical iPhones",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "blitz-ios-mcp": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "src/idb/ax-scan/ax-scan.m",
+    "src/idb/ax-scan/Makefile"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "express": "^5.1.0",
+    "ws": "^8.18.3",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.0",
+    "typescript": "^5.7.0"
+  }
+}
