@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "blitz-ios": {
+      "command": "npx",
+      "args": [
+        "blitz-ios-mcp"
+      ]
+    }
+  }
+}

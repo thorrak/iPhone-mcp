@@ -135,7 +135,7 @@ export class IDBClient {
     const resolvedUdid = await this.getResolvedUdid()
     const companionArg = IDB_COMPANION_PATH ? `--companion-path ${IDB_COMPANION_PATH}` : ''
     const udidArg = `--udid ${resolvedUdid}`
-    const cmd = `${IDB_PATH} ${companionArg} ${args} ${udidArg}`.trim()
+    const cmd = `${IDB_PATH} ${companionArg} ${udidArg} ${args}`.trim()
     log('IDBClient', 'log', `[${this.udid}] Running direct: ${cmd}`)
     const { stdout, stderr } = await execAsync(cmd)
     if (stderr) log('IDBClient', 'log', `[${this.udid}] stderr: ${stderr}`)
