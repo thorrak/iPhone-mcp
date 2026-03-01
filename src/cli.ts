@@ -19,7 +19,7 @@ function printUsage(): void {
 
 Usage:
   npx @blitzdev/ios-mcp              Start the MCP server (stdio)
-  npx @blitzdev/ios-mcp --setup-all  Install deps + configure globally (Claude Code, Cursor, Codex)
+  npx @blitzdev/ios-mcp --setup-all  Install deps + configure globally (Claude Code, Cursor, Codex, OpenCode)
   npx @blitzdev/ios-mcp --setup-here Install deps + configure for current directory
   npx @blitzdev/ios-mcp --setup      Interactive setup (prompts for scope)
   npx @blitzdev/ios-mcp --version    Print version
@@ -139,6 +139,9 @@ async function runSetup(scope?: 'all' | 'here'): Promise<void> {
     if (existsSync(join(homedir(), '.codex'))) {
       configured.push(...writeCodexConfig(join(homedir(), '.codex', 'config.toml')))
     }
+    if (existsSync(join(process.cwd(), 'opencode.json')) || existsSync(join(process.cwd(), 'opencode.jsonc'))) {
+      configured.push(...writeOpenCodeConfig(join(process.cwd(), 'opencode.json')))
+    }
   } else if (scope === 'here') {
     // Project-scoped: checkbox prompt for which clients to configure
     const choices = await checkbox<string>(
@@ -148,6 +151,7 @@ async function runSetup(scope?: 'all' | 'here'): Promise<void> {
           { name: 'Claude Code', value: 'claude-code', checked: true },
           { name: 'Cursor', value: 'cursor' },
           { name: 'Codex', value: 'codex' },
+          { name: 'OpenCode', value: 'opencode' },
         ],
       },
       { output: process.stderr },
@@ -164,6 +168,9 @@ async function runSetup(scope?: 'all' | 'here'): Promise<void> {
       mkdirSync(join(process.cwd(), '.codex'), { recursive: true })
       configured.push(...writeCodexConfig(join(process.cwd(), '.codex', 'config.toml')))
     }
+    if (choices.includes('opencode')) {
+      configured.push(...writeOpenCodeConfig(join(process.cwd(), 'opencode.json')))
+    }
   } else {
     // Interactive --setup: ask scope first, then configure
     const answer = await prompt('\n  Install MCP config:\n    1. System-wide (all projects) [recommended]\n    2. Current directory only\n  Choose (1/2): ')
@@ -176,6 +183,9 @@ async function runSetup(scope?: 'all' | 'here'): Promise<void> {
       }
       if (existsSync(join(homedir(), '.codex'))) {
         configured.push(...writeCodexConfig(join(homedir(), '.codex', 'config.toml')))
+      }
+      if (existsSync(join(process.cwd(), 'opencode.json')) || existsSync(join(process.cwd(), 'opencode.jsonc'))) {
+        configured.push(...writeOpenCodeConfig(join(process.cwd(), 'opencode.json')))
       }
     }
   }
@@ -221,6 +231,36 @@ function writeClaudeCodeConfig(configPath: string): string[] {
 
 function writeCursorConfig(configPath: string): string[] {
   return writeJsonMcpConfig(configPath) ? ['Cursor'] : []
+}
+
+function writeOpenCodeConfig(configPath: string): string[] {
+  const mcpEntry = {
+    'blitz-ios': {
+      type: 'local',
+      command: ['npx', '-y', '@blitzdev/ios-mcp'],
+      enabled: true,
+    },
+  }
+
+  try {
+    let existing: Record<string, unknown> = {}
+    if (existsSync(configPath)) {
+      existing = JSON.parse(readFileSync(configPath, 'utf8'))
+    }
+    const merged = {
+      ...existing,
+      mcp: {
+        ...(existing.mcp as Record<string, unknown> ?? {}),
+        ...mcpEntry,
+      },
+    }
+    writeFileSync(configPath, JSON.stringify(merged, null, 2) + '\n')
+    process.stderr.write(`    Written: ${configPath}\n`)
+    return ['OpenCode']
+  } catch (e) {
+    process.stderr.write(`    Warning: Could not write ${configPath}: ${(e as Error).message}\n`)
+    return []
+  }
 }
 
 function writeCodexConfig(configPath: string): string[] {

@@ -1,6 +1,6 @@
 # @blitzdev/ios-mcp
 
-MCP server that lets AI agents control iOS simulators and physical iPhones. Works with Claude Code, Cursor, Codex, and any MCP-compatible AI agent.
+MCP server that lets AI agents control iOS simulators and physical iPhones. Works with Claude Code, Cursor, Codex, OpenCode, and any MCP-compatible AI agent.
 
 <!-- NOTE: Video showing a 30-second demo of Claude Code tapping through an app on a simulator, scanning UI, and taking a screenshot -->
 
@@ -18,7 +18,7 @@ npm install @blitzdev/ios-mcp
 npx @blitzdev/ios-mcp --setup-all
 ```
 
-This installs dependencies and configures `@blitzdev/ios-mcp` for all your AI agents. It automatically sets up Claude Code, and if you have Cursor or Codex installed, those get configured too.
+This installs dependencies and configures `@blitzdev/ios-mcp` for all your AI agents. It automatically sets up Claude Code, and if you have Cursor, Codex, or OpenCode installed, those get configured too.
 
 NOTE: For Cursor, you need to enable the blitz-ios MCP server in Cursor Settings
 
@@ -29,7 +29,7 @@ cd your-project
 npx @blitzdev/ios-mcp --setup-here
 ```
 
-This prompts you to choose which AI agents to configure (Claude Code, Cursor, Codex) and writes the config files into your project directory. `@blitzdev/ios-mcp` will only be available when you open an agent inside that directory.
+This prompts you to choose which AI agents to configure (Claude Code, Cursor, Codex, OpenCode) and writes the config files into your project directory. `@blitzdev/ios-mcp` will only be available when you open an agent inside that directory.
 
 ### Then just ask
 
@@ -179,6 +179,21 @@ If you'd rather configure things yourself:
 [mcp_servers.blitz-ios]
 command = "npx"
 args = ["@blitzdev/ios-mcp"]
+```
+
+**OpenCode** — add to `opencode.json` in your project root:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "blitz-ios": {
+      "type": "local",
+      "command": ["npx", "-y", "@blitzdev/ios-mcp"],
+      "enabled": true
+    }
+  }
+}
 ```
 
 ## Troubleshooting
