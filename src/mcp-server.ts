@@ -63,7 +63,7 @@ const singleActionSchema = z.object({
 
 export function createMcpServer(viewerPort: number) {
   const server = new McpServer({
-    name: 'blitz-ios-mcp',
+    name: '@blitzdev/ios-mcp',
     version: '0.1.0',
   })
 

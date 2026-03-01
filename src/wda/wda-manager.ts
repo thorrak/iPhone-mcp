@@ -42,7 +42,7 @@ export class WDAManager {
     const blitzPath = join(homedir(), '.blitz', 'wda-build', 'WebDriverAgent')
     if (existsSync(join(blitzPath, 'WebDriverAgent.xcodeproj'))) return blitzPath
 
-    throw new Error('WebDriverAgent not found. Run `npx blitz-ios-mcp --setup` to install it.')
+    throw new Error('WebDriverAgent not found. Run `npx @blitzdev/ios-mcp --setup` to install it.')
   }
 
   private async ensureWdaSource(): Promise<string> {

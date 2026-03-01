@@ -15,15 +15,15 @@ const VERSION = '0.1.0'
 
 function printUsage(): void {
   process.stderr.write(`
-blitz-ios-mcp v${VERSION}
+@blitzdev/ios-mcp v${VERSION}
 
 Usage:
-  blitz-ios-mcp              Start the MCP server (stdio)
-  blitz-ios-mcp --setup-all  Install deps + configure globally (Claude Code, Cursor, Codex)
-  blitz-ios-mcp --setup-here Install deps + configure for current directory
-  blitz-ios-mcp --setup      Interactive setup (prompts for scope)
-  blitz-ios-mcp --version    Print version
-  blitz-ios-mcp --help       Show this help
+  npx @blitzdev/ios-mcp              Start the MCP server (stdio)
+  npx @blitzdev/ios-mcp --setup-all  Install deps + configure globally (Claude Code, Cursor, Codex)
+  npx @blitzdev/ios-mcp --setup-here Install deps + configure for current directory
+  npx @blitzdev/ios-mcp --setup      Interactive setup (prompts for scope)
+  npx @blitzdev/ios-mcp --version    Print version
+  npx @blitzdev/ios-mcp --help       Show this help
 `)
 }
 
@@ -41,7 +41,7 @@ async function runSetup(scope?: 'all' | 'here'): Promise<void> {
   const mcpHome = join(homedir(), '.blitz-ios-mcp')
   const blitzHome = join(homedir(), '.blitz')
 
-  process.stderr.write('\n  blitz-ios-mcp setup\n\n')
+  process.stderr.write('\n  @blitzdev/ios-mcp setup\n\n')
 
   // Step 1: Check Xcode
   process.stderr.write('  [1/6] Checking Xcode... ')
@@ -184,7 +184,7 @@ async function runSetup(scope?: 'all' | 'here'): Promise<void> {
     // Project-scoped: checkbox prompt for which clients to configure
     const choices = await checkbox<string>(
       {
-        message: 'Which AI agents should have access to blitz-ios-mcp?',
+        message: 'Which AI agents should have access to @blitzdev/ios-mcp?',
         choices: [
           { name: 'Claude Code', value: 'claude-code', checked: true },
           { name: 'Cursor', value: 'cursor' },
@@ -231,7 +231,7 @@ function writeJsonMcpConfig(configPath: string): boolean {
   const mcpServers = {
     'blitz-ios': {
       command: 'npx',
-      args: ['blitz-ios-mcp'],
+      args: ['@blitzdev/ios-mcp'],
     },
   }
 
@@ -265,7 +265,7 @@ function writeCursorConfig(configPath: string): string[] {
 }
 
 function writeCodexConfig(configPath: string): string[] {
-  const tomlBlock = `\n[mcp_servers.blitz-ios]\ncommand = "npx"\nargs = ["blitz-ios-mcp"]\n`
+  const tomlBlock = `\n[mcp_servers.blitz-ios]\ncommand = "npx"\nargs = ["@blitzdev/ios-mcp"]\n`
 
   try {
     let existing = ''
@@ -294,7 +294,7 @@ async function main(): Promise<void> {
   }
 
   if (args.includes('--version') || args.includes('-v')) {
-    process.stderr.write(`blitz-ios-mcp v${VERSION}\n`)
+    process.stderr.write(`@blitzdev/ios-mcp v${VERSION}\n`)
     process.exit(0)
   }
 

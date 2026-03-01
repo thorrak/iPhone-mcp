@@ -1,4 +1,4 @@
-# blitz-ios-mcp
+# @blitzdev/ios-mcp
 
 MCP server that lets AI agents control iOS simulators and physical iPhones. Works with Claude Code, Cursor, Codex, and any MCP-compatible AI agent.
 
@@ -7,7 +7,7 @@ MCP server that lets AI agents control iOS simulators and physical iPhones. Work
 ## Installation
 
 ```bash
-npm install blitz-ios-mcp
+npm install @blitzdev/ios-mcp
 ```
 
 ## Quick Start
@@ -15,10 +15,10 @@ npm install blitz-ios-mcp
 ### System-wide (use in any project)
 
 ```bash
-npx blitz-ios-mcp --setup-all
+npx @blitzdev/ios-mcp --setup-all
 ```
 
-This installs dependencies and configures `blitz-ios-mcp` for all your AI agents globally. It automatically sets up Claude Code, and if you have Cursor or Codex installed, those get configured too.
+This installs dependencies and configures `@blitzdev/ios-mcp` for all your AI agents globally. It automatically sets up Claude Code, and if you have Cursor or Codex installed, those get configured too.
 
 NOTE: For Cursor, you need to enable the blitz-ios MCP server in Cursor Settings
 
@@ -26,10 +26,10 @@ NOTE: For Cursor, you need to enable the blitz-ios MCP server in Cursor Settings
 
 ```bash
 cd your-project
-npx blitz-ios-mcp --setup-here
+npx @blitzdev/ios-mcp --setup-here
 ```
 
-This prompts you to choose which AI agents to configure (Claude Code, Cursor, Codex) and writes the config files into your project directory. `blitz-ios-mcp` will only be available when you open an agent inside that directory.
+This prompts you to choose which AI agents to configure (Claude Code, Cursor, Codex) and writes the config files into your project directory. `@blitzdev/ios-mcp` will only be available when you open an agent inside that directory.
 
 ### Then just ask
 
@@ -154,7 +154,7 @@ If you'd rather configure things yourself:
   "mcpServers": {
     "blitz-ios": {
       "command": "npx",
-      "args": ["blitz-ios-mcp"]
+      "args": ["@blitzdev/ios-mcp"]
     }
   }
 }
@@ -167,7 +167,7 @@ If you'd rather configure things yourself:
   "mcpServers": {
     "blitz-ios": {
       "command": "npx",
-      "args": ["blitz-ios-mcp"]
+      "args": ["@blitzdev/ios-mcp"]
     }
   }
 }
@@ -178,7 +178,7 @@ If you'd rather configure things yourself:
 ```toml
 [mcp_servers.blitz-ios]
 command = "npx"
-args = ["blitz-ios-mcp"]
+args = ["@blitzdev/ios-mcp"]
 ```
 
 ## Troubleshooting
@@ -189,7 +189,7 @@ args = ["blitz-ios-mcp"]
 
 **WDA build fails** — Open Xcode > Settings > Accounts and make sure an Apple ID is signed in. Xcode needs a signing identity to build WDA.
 
-**"Connection refused" errors** — The idb companion may have crashed. Run `npx blitz-ios-mcp --setup-all` again to re-initialize.
+**"Connection refused" errors** — The idb companion may have crashed. Run `npx @blitzdev/ios-mcp --setup-all` again to re-initialize.
 
 ## License
 
