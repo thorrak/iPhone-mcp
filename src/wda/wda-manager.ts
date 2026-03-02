@@ -336,24 +336,35 @@ export class WDAManager {
     const proc = spawn('xcodebuild', args, { stdio: ['pipe', 'pipe', 'pipe'], env: childEnv() })
     this.wdaProcesses.set(udid, proc)
 
-    proc.stderr?.on('data', (data: Buffer) => {
-      const text = data.toString()
-      if (text.includes('ServerURLHere')) {
-        log('WDAManager', 'log', `WDA server started on device ${udid}`)
+    // Wait until WDA signals it's ready rather than sleeping a fixed 3s.
+    // The connectTimeout in setupDevice handles the overall deadline.
+    return new Promise<void>((resolve, reject) => {
+      let resolved = false
+
+      const onData = (data: Buffer) => {
+        if (resolved) return
+        if (data.toString().includes('ServerURLHere')) {
+          resolved = true
+          log('WDAManager', 'log', `WDA server started on device ${udid}`)
+          resolve()
+        }
       }
-    })
 
-    proc.on('exit', (code, signal) => {
-      log('WDAManager', 'log', `WDA process exited for ${udid}: code=${code} signal=${signal}`)
-      this.wdaProcesses.delete(udid)
-    })
+      proc.stdout?.on('data', onData)
+      proc.stderr?.on('data', onData)
 
-    proc.on('error', (err) => {
-      log('WDAManager', 'error', `WDA process error for ${udid}: ${err.message}`)
-      this.wdaProcesses.delete(udid)
-    })
+      proc.on('exit', (code, signal) => {
+        log('WDAManager', 'log', `WDA process exited for ${udid}: code=${code} signal=${signal}`)
+        this.wdaProcesses.delete(udid)
+        if (!resolved) reject(new Error(`WDA process exited before starting (code=${code} signal=${signal})`))
+      })
 
-    await new Promise(resolve => setTimeout(resolve, 3000))
+      proc.on('error', (err) => {
+        log('WDAManager', 'error', `WDA process error for ${udid}: ${err.message}`)
+        this.wdaProcesses.delete(udid)
+        if (!resolved) reject(new Error(`WDA process error: ${err.message}`))
+      })
+    })
   }
 
   private async waitForWDA(udid: string, port: number, tunnelIP: string, maxRetries: number = 30): Promise<void> {
