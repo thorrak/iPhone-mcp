@@ -188,23 +188,33 @@ export class WDAManager {
 
     report('installing_wda', 'Installing WebDriverAgent on device. Keep your iPhone unlocked — the app cannot install or launch on a locked screen.')
 
-    const connectTimeoutMs = 3 * 60 * 1000
+    let installElapsed = 0
+    const installHeartbeat = setInterval(() => {
+      installElapsed += 30
+      report('installing_wda', `Still installing... (${installElapsed}s elapsed)`)
+    }, 30_000)
+
+    const connectTimeoutMs = 10 * 60 * 1000
     const connectTimeout = new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error(SETUP_TIMEOUT_ERROR)), connectTimeoutMs)
     )
 
     const connect = async () => {
-      await this.launchWDA(udid)
-      report('installing_wda', 'WebDriverAgent launched.')
+      try {
+        await this.launchWDA(udid)
+        report('installing_wda', 'WebDriverAgent launched.')
 
-      report('establishing_connection', 'Waiting for WebDriverAgent...')
-      const tunnelIP = await this.getTunnelAddress(udid)
-      await this.waitForWDA(udid, port, tunnelIP)
+        report('establishing_connection', 'Waiting for WebDriverAgent...')
+        const tunnelIP = await this.getTunnelAddress(udid)
+        await this.waitForWDA(udid, port, tunnelIP)
 
-      const client = WDAClient.getInstance(udid, port, tunnelIP)
-      await client.createSession()
-      report('ready', 'Connected to device.')
-      return client
+        const client = WDAClient.getInstance(udid, port, tunnelIP)
+        await client.createSession()
+        report('ready', 'Connected to device.')
+        return client
+      } finally {
+        clearInterval(installHeartbeat)
+      }
     }
 
     return Promise.race([connect(), connectTimeout])
