@@ -11,7 +11,7 @@ import { log } from './logger.js'
 
 const execAsync = promisify(exec)
 
-const VERSION = '0.1.0'
+const VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8')).version
 
 function printUsage(): void {
   process.stderr.write(`
