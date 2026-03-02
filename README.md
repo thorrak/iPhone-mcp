@@ -12,7 +12,8 @@
 
 MCP server that lets AI agents control real iPhones and iPhone simulators on MacOS.
 Works with Claude Code, Cursor, Codex, OpenCode, and any MCP-compatible AI agent.
-<!-- NOTE: Video showing a 30-second demo of Claude Code tapping through an app on a simulator, scanning UI, and taking a screenshot -->
+
+<video src="demo.mp4" autoplay loop muted playsinline width="100%"></video>
 
 ## Requirements
 
