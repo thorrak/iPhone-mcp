@@ -24,6 +24,17 @@ export interface WDASetupProgress {
 
 type ProgressCallback = (progress: WDASetupProgress) => void
 
+const SETUP_TIMEOUT_ERROR = `Setup timed out. Please check:
+
+1. iPhone is unlocked — keep it unlocked for the entire setup process.
+
+2. Developer Mode is enabled — on your iPhone: Settings → Privacy & Security → Developer Mode.
+
+3. Same private network — your iPhone and Mac must be on the same home or office WiFi. Public WiFi (airports, hotels, cafes) isolates devices from each other and will block this.
+   To verify: on your iPhone go to Settings → WiFi → tap your network name → note the IP Address. On your Mac go to System Settings → Network → WiFi → Details → IP Address. Both should start with the same numbers (e.g., both 192.168.1.x = same network ✓). If they differ, use a personal hotspot or plug in via USB.
+
+For the most reliable setup, connect your iPhone via USB.`
+
 export class WDAManager {
   private static instance: WDAManager | null = null
   private wdaProcesses: Map<string, ChildProcess> = new Map()
@@ -67,6 +78,32 @@ export class WDAManager {
     const dir = join(homedir(), '.blitz-iphone-mcp', 'wda-build')
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
     return dir
+  }
+
+  private async preTriggerCodesignDialog(teamId: string): Promise<void> {
+    try {
+      const { stdout } = await execAsync(
+        `security find-identity -v -p codesigning | grep "Apple Development" | grep "${teamId}" | head -1`,
+        { env: childEnv() }
+      )
+      const match = stdout.match(/"(.+?)"/)
+      if (!match) return
+
+      const identity = match[1]
+      const tmpBin = `/tmp/blitz_codesign_preflight_${Date.now()}`
+      await execAsync(`cp /bin/ls "${tmpBin}"`, { env: childEnv() })
+      try {
+        // This triggers the macOS keychain dialog for the signing cert.
+        // User must click "Always Allow" — give them 20s to respond.
+        await execAsync(`codesign -f -s "${identity}" "${tmpBin}"`, { timeout: 20_000, env: childEnv() })
+      } catch {
+        // Dismissed or denied — non-fatal, xcodebuild will prompt again or fail with a clear error
+      } finally {
+        await execAsync(`rm -f "${tmpBin}"`, { env: childEnv() }).catch(() => {})
+      }
+    } catch {
+      // Non-fatal — proceed with build regardless
+    }
   }
 
   private async detectTeamId(): Promise<string> {
@@ -136,23 +173,41 @@ export class WDAManager {
       return client
     }
 
-    report('building_wda', 'Building WebDriverAgent...')
-    await this.buildWDA(udid)
+    report('building_wda', 'Building WebDriverAgent (this takes 3-5 min on first run). Watch your Mac screen — macOS will show a keychain dialog asking codesign to access your signing certificate. Click "Always Allow" when prompted.')
+    let buildElapsed = 0
+    const heartbeat = setInterval(() => {
+      buildElapsed += 30
+      report('building_wda', `Still building... (${buildElapsed}s elapsed)`)
+    }, 30_000)
+    try {
+      await this.buildWDA(udid)
+    } finally {
+      clearInterval(heartbeat)
+    }
     report('building_wda', 'Build complete.')
 
-    report('installing_wda', 'Launching WebDriverAgent on device...')
-    await this.launchWDA(udid)
-    report('installing_wda', 'WebDriverAgent launched.')
+    report('installing_wda', 'Installing WebDriverAgent on device. Keep your iPhone unlocked — the app cannot install or launch on a locked screen.')
 
-    report('establishing_connection', 'Waiting for WebDriverAgent...')
-    const tunnelIP = await this.getTunnelAddress(udid)
-    await this.waitForWDA(udid, port, tunnelIP)
+    const connectTimeoutMs = 3 * 60 * 1000
+    const connectTimeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(SETUP_TIMEOUT_ERROR)), connectTimeoutMs)
+    )
 
-    const client = WDAClient.getInstance(udid, port, tunnelIP)
-    await client.createSession()
-    report('ready', 'Connected to device.')
+    const connect = async () => {
+      await this.launchWDA(udid)
+      report('installing_wda', 'WebDriverAgent launched.')
 
-    return client
+      report('establishing_connection', 'Waiting for WebDriverAgent...')
+      const tunnelIP = await this.getTunnelAddress(udid)
+      await this.waitForWDA(udid, port, tunnelIP)
+
+      const client = WDAClient.getInstance(udid, port, tunnelIP)
+      await client.createSession()
+      report('ready', 'Connected to device.')
+      return client
+    }
+
+    return Promise.race([connect(), connectTimeout])
   }
 
   async quickConnect(
@@ -196,11 +251,15 @@ export class WDAManager {
     const derivedData = this.getDerivedDataPath()
     const teamId = await this.detectTeamId()
 
+    // Pre-trigger the macOS keychain dialog so it appears before the long build.
+    // The user must click "Always Allow" — if they miss it, xcodebuild will fail with code 70.
+    await this.preTriggerCodesignDialog(teamId)
+
     const args = [
       'build-for-testing',
       '-project', join(wdaPath, 'WebDriverAgent.xcodeproj'),
       '-scheme', 'WebDriverAgentRunner',
-      '-destination', `id=${udid}`,
+      '-destination', 'generic/platform=iOS',
       '-derivedDataPath', derivedData,
       '-allowProvisioningUpdates',
       `DEVELOPMENT_TEAM=${teamId}`,
@@ -211,10 +270,21 @@ export class WDAManager {
     return new Promise<void>((resolve, reject) => {
       const proc = spawn('xcodebuild', args, { stdio: ['pipe', 'pipe', 'pipe'], env: childEnv() })
       let stderr = ''
+      let settled = false
+
+      const buildTimeout = setTimeout(() => {
+        if (settled) return
+        settled = true
+        proc.kill('SIGTERM')
+        reject(new Error(SETUP_TIMEOUT_ERROR))
+      }, 10 * 60 * 1000)
 
       proc.stderr?.on('data', (data: Buffer) => { stderr += data.toString() })
 
       proc.on('close', (code) => {
+        if (settled) return
+        settled = true
+        clearTimeout(buildTimeout)
         if (code === 0) {
           log('WDAManager', 'log', 'WDA build succeeded')
           resolve()
@@ -226,6 +296,8 @@ export class WDAManager {
             reject(new Error('Provisioning error. Ensure your Apple ID is signed into Xcode.'))
           } else if (stderr.includes('Trust This Computer')) {
             reject(new Error('Tap "Trust This Computer" on your iPhone.'))
+          } else if (code === 70) {
+            reject(new Error('WDA build failed (code 70): macOS blocked codesign access to your signing certificate. A keychain dialog may have appeared and been missed or denied. Try setup_device again and click "Always Allow" when macOS asks codesign to access your keychain.'))
           } else {
             reject(new Error(`WDA build failed with code ${code}`))
           }
@@ -233,6 +305,9 @@ export class WDAManager {
       })
 
       proc.on('error', (err) => {
+        if (settled) return
+        settled = true
+        clearTimeout(buildTimeout)
         reject(new Error(`Failed to start xcodebuild: ${err.message}`))
       })
     })

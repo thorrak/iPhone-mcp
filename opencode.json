@@ -9,6 +9,15 @@
         "@blitzdev/ios-mcp"
       ],
       "enabled": true
+    },
+    "blitz-iphone": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@blitzdev/iphone-mcp"
+      ],
+      "enabled": true
     }
   }
 }
