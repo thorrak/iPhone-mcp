@@ -577,57 +577,65 @@ After setup completes, use the returned udid for all subsequent tool calls. Also
         udid: z.string().describe('Physical device UDID from list_devices or get_execution_context'),
       },
     },
-    async ({ udid }, extra) => {
+    async ({ udid }) => {
       log('MCP', 'log', `setup_device udid=${udid}`)
-      try {
-        const progressToken = extra._meta?.progressToken
-        const steps: Record<string, number> = {
-          connecting: 1,
-          building_wda: 2,
-          installing_wda: 3,
-          establishing_connection: 4,
-          ready: 5,
-        }
-        const totalSteps = 5
-        const progressMessages: string[] = []
 
-        const client = await wdaManager.setupDevice(udid, (progress) => {
-          progressMessages.push(`[${progress.step}] ${progress.message}`)
-          if (progressToken) {
-            extra.sendNotification({
-              method: 'notifications/progress',
-              params: {
-                progressToken,
-                progress: steps[progress.step] ?? 0,
-                total: totalSteps,
-                message: progress.message,
-              },
-            }).catch(() => {})
-          }
-        })
-
-        let screenSize: { width: number; height: number } | null = null
+      // Fast path: WDA already running, just connect
+      if (await wdaManager.isWDARunning(udid)) {
         try {
-          screenSize = await client.getWindowSize()
-        } catch { /* unavailable */ }
+          const tunnelIP = await wdaManager.getTunnelAddress(udid)
+          const client = wdaManager.getClient(udid, tunnelIP)
+          await client.createSession()
+          let screenSize: { width: number; height: number } | null = null
+          try { screenSize = await client.getWindowSize() } catch { /* unavailable */ }
+          const viewerUrl = `http://localhost:${viewerPort}?udid=${encodeURIComponent(udid)}`
+          return {
+            content: [{
+              type: 'text' as const,
+              text: JSON.stringify({ status: 'connected', udid, viewer_url: viewerUrl, screen_size: screenSize }, null, 2)
+                + `\n\nIMPORTANT: Tell the user to open this URL to see the device screen: ${viewerUrl}`,
+            }],
+          }
+        } catch (error) {
+          return {
+            content: [{ type: 'text' as const, text: `Error connecting to WDA: ${error instanceof Error ? error.message : String(error)}` }],
+            isError: true,
+          }
+        }
+      }
 
-        const viewerUrl = `http://localhost:${viewerPort}?udid=${encodeURIComponent(udid)}`
+      // WDA not running — return bash commands for the AI to run manually.
+      // Running xcodebuild inside the MCP process causes timeouts; running it
+      // via the Bash tool works reliably.
+      try {
+        const wdaPath = wdaManager.getWdaProjectPathOrNull()
+        const teamId = await wdaManager.detectTeamIdPublic()
+        const derivedData = wdaManager.getDerivedDataPathPublic()
+
+        const cloneCmd = wdaPath ? null
+          : `git clone --depth 1 https://github.com/appium/WebDriverAgent.git ${derivedData}/WebDriverAgent`
+        const projectPath = wdaPath ?? `${derivedData}/WebDriverAgent`
+
+        const buildCmd = `xcodebuild build-for-testing -project "${projectPath}/WebDriverAgent.xcodeproj" -scheme WebDriverAgentRunner -destination 'generic/platform=iOS' -derivedDataPath "${derivedData}" -allowProvisioningUpdates DEVELOPMENT_TEAM=${teamId}`
+
+        const launchCmd = `xcodebuild test-without-building -project "${projectPath}/WebDriverAgent.xcodeproj" -scheme WebDriverAgentRunner -destination 'id=${udid}' -derivedDataPath "${derivedData}"`
+
+        const steps = [
+          cloneCmd ? `1. Clone WebDriverAgent:\n\`\`\`\n${cloneCmd}\n\`\`\`` : null,
+          `${cloneCmd ? '2' : '1'}. Build WDA (watch for a macOS keychain dialog — click "Always Allow"):\n\`\`\`\n${buildCmd}\n\`\`\``,
+          `${cloneCmd ? '3' : '2'}. Install and launch WDA — run in background, wait for "ServerURLHere" in output:\n\`\`\`\n${launchCmd}\n\`\`\``,
+          `${cloneCmd ? '4' : '3'}. Once "ServerURLHere" appears, call setup_device again — it will connect instantly.`,
+        ].filter(Boolean).join('\n\n')
 
         return {
           content: [{
             type: 'text' as const,
-            text: JSON.stringify({
-              status: 'connected',
-              udid,
-              viewer_url: viewerUrl,
-              screen_size: screenSize,
-              setup_log: progressMessages,
-            }, null, 2) + `\n\nIMPORTANT: Tell the user to open this URL to see the device screen: ${viewerUrl}`,
+            text: `WebDriverAgent is not running on this device. Run the following commands using your Bash tool, then call setup_device again:\n\n${steps}\n\nKeep the iPhone unlocked throughout.`,
           }],
         }
       } catch (error) {
         return {
-          content: [{ type: 'text' as const, text: `Error setting up device: ${error instanceof Error ? error.message : String(error)}` }],
+          content: [{ type: 'text' as const, text: `Error preparing setup instructions: ${error instanceof Error ? error.message : String(error)}` }],
           isError: true,
         }
       }

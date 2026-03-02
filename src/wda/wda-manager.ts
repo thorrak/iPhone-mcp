@@ -46,6 +46,22 @@ export class WDAManager {
     return WDAManager.instance
   }
 
+  getWdaProjectPathOrNull(): string | null {
+    try { return this.getWdaProjectPath() } catch { return null }
+  }
+
+  getDerivedDataPathPublic(): string {
+    return this.getDerivedDataPath()
+  }
+
+  async detectTeamIdPublic(): Promise<string> {
+    return this.detectTeamId()
+  }
+
+  getClient(udid: string, tunnelIP: string, port: number = 8100): WDAClient {
+    return WDAClient.getInstance(udid, port, tunnelIP)
+  }
+
   private getWdaProjectPath(): string {
     const mcpPath = join(homedir(), '.blitz-iphone-mcp', 'wda-build', 'WebDriverAgent')
     if (existsSync(join(mcpPath, 'WebDriverAgent.xcodeproj'))) return mcpPath
